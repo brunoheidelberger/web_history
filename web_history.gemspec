@@ -14,4 +14,10 @@ Gem::Specification.new do |gem|
   gem.name          = "web_history"
   gem.require_paths = ["lib"]
   gem.version       = WebHistory::VERSION
+
+  gem.add_dependency "nokogiri", "~> 1.5"
+
+  gem.add_development_dependency "rspec", "~> 2.10"
+  gem.add_development_dependency "factory_girl", "~> 3.5"
+  gem.add_development_dependency "webmock", "~> 1.8"
 end
