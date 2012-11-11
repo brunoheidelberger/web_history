@@ -10,7 +10,9 @@ module WebHistory
       @filename = filename
 
       options = Helpers::symbolize_keys(options)
+
       @settings = options[:settings].is_a?(Settings) ? options[:settings] : Settings.new(options[:settings] || {})
+      @settings.portfolio_path = File.dirname(@filename) unless @filename.nil?
 
       @folders = []
       folders = options[:folders] || []
@@ -38,6 +40,7 @@ module WebHistory
 
     def save(filename = nil)
       @filename = filename || @filename
+      @settings.portfolio_path = File.dirname(@filename)
 
       File.open(@filename, 'w') do |file|
         file.write(to_hash.to_yaml)
