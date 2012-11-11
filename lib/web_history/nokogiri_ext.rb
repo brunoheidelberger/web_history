@@ -12,10 +12,6 @@ module Nokogiri
 
       VOID_ELEMENTS = %w{ area base br col command embed hr img input keygen link meta param source track wbr }
 
-      def self.stripify(str)
-        str.gsub(/[[:space:]]+/u, ' ').strip
-      end
-
       def self.traverse(node, level = 0, &block)
         block.call(node, :before, level)
         node.children.each { |child| traverse(child, level + 1, &block) }
@@ -32,7 +28,7 @@ module Nokogiri
           node.keys.each { |key| node.delete(key) }
           attribute_nodes.each { |attribute_node| node[attribute_node.name] = attribute_node.value }
         when Nokogiri::XML::Node::TEXT_NODE
-          node.content = stripify(node.content)
+          node.content = node.content.gsub(/[[:space:]]+/u, ' ').strip
           node.unlink if node.blank?
         else
           raise "Unknown node type: #{node.type} #{node.name}"
