@@ -86,8 +86,20 @@ module WebHistory
 
       raise "Invalid HTTP response code." unless response.kind_of?(Net::HTTPOK)
 
-      @html_document = Nokogiri::HTML(response.body) #{ |config| config.noblanks }
+      charset = nil
+      case response.type_params['charset']
+      when 'iso-8859-1'
+        charset = 'windows-1252'
+      when 'utf-8'
+        charset = 'utf-8'
+      else
+        raise "Unknown charset."
+      end
+      body = charset == 'utf-8' ? response.body : response.body.encode('utf-8', charset)
+
+      @html_document = Nokogiri::HTML(body) { |config| config.nonet }
       @html_document.meta_encoding = 'utf-8'
+
       #puts @html_document.errors
       
       normalize
