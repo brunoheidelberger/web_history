@@ -97,7 +97,7 @@ module WebHistory
       end
       body = charset == 'utf-8' ? response.body : response.body.encode('utf-8', charset)
 
-      @html_document = Nokogiri::HTML(body) { |config| config.nonet }
+      @html_document = Nokogiri::HTML(body)
       @html_document.meta_encoding = 'utf-8'
 
       #puts @html_document.errors
@@ -120,7 +120,17 @@ module WebHistory
     end
 
     def digest
-      traverse { |node, type| Nokogiri::XML::NodeHelpers.digest(node) if type == :after }
+      mode =
+        case @settings.digest_mode
+        when 'all'
+          Nokogiri::XML::NodeHelpers::DigestModes::ALL
+        when 'no_attributes'
+          Nokogiri::XML::NodeHelpers::DigestModes::NO_ATTRIBUTES
+        else
+          raise "Invalid digest mode."
+        end
+
+      traverse { |node, type| Nokogiri::XML::NodeHelpers.digest(node, mode) if type == :after }
     end
 
     def dump(io = STDIN)

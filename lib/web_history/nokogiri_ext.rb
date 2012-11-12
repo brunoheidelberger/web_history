@@ -11,6 +11,11 @@ module Nokogiri
     module NodeHelpers
 
       VOID_ELEMENTS = %w{ area base br col command embed hr img input keygen link meta param source track wbr }
+      
+      class DigestModes
+        ALL           = 0
+        NO_ATTRIBUTES = 1
+      end
 
       def self.traverse(node, level = 0, &block)
         block.call(node, :before, level)
@@ -35,7 +40,7 @@ module Nokogiri
         end
       end
 
-      def self.digest(node)
+      def self.digest(node, mode = DigestModes::ALL)
         case node.type
         when Nokogiri::XML::Node::CDATA_SECTION_NODE,
              Nokogiri::XML::Node::COMMENT_NODE
@@ -44,7 +49,7 @@ module Nokogiri
              Nokogiri::XML::Node::TEXT_NODE
           digest = Digest::SHA1.new
           digest << node.name
-          node.keys.each { |key| digest << "#{key}=\"#{node[key]}\"" }
+          node.keys.each { |key| digest << "#{key}=\"#{node[key]}\"" } unless mode == DigestModes::NO_ATTRIBUTES
           digest << node.content unless node.element?
           node.digest = digest.hexdigest.encode('utf-8')
           node.children.each { |child| digest << child.accumulated_digest }
